@@ -1,0 +1,4 @@
+colorama==0.4.6
+py-mon==2.2.0
+pygame==2.6.1
+watchdog==6.0.0
