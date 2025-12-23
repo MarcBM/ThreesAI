@@ -2,7 +2,7 @@ import pygame
 import sys
 from pygame.locals import *
 from gameState import Threes
-from renderer import WIDTH, HEIGHT, draw_screen
+from renderer import WIDTH, HEIGHT, draw_screen, start_renderer
 
 pygame.init()
 
@@ -15,7 +15,7 @@ pygame.display.set_caption('Threes!')
 game = Threes()
 game.start_game()
 
-draw_screen(DISPLAYSURF, game)
+start_renderer(DISPLAYSURF, game)
 
 
 # Game Loop

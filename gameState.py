@@ -25,6 +25,8 @@ class Tile:
     def __init__(self, ord):
         self.ord = ord # Tile's ordinal value
         self.value = self.compute_value()
+        self.moving = False
+        self.offset = (0, 0)
     
     def compute_value(self):
         if self.ord == -2:
