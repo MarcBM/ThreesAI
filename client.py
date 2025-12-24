@@ -2,20 +2,19 @@ import pygame
 import sys
 from pygame.locals import *
 from gameState import Threes
-from renderer import WIDTH, HEIGHT, draw_screen, start_renderer
+from renderer import RendererManager
 
 pygame.init()
 
 FramePerSec = pygame.time.Clock()
 FPS = 60
 
-DISPLAYSURF = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Threes!')
-
 game = Threes()
-game.start_game()
 
-start_renderer(DISPLAYSURF, game)
+renderer = RendererManager(game)
+game.assign_renderer(renderer)
+
+game.start_game()
 
 
 # Game Loop
@@ -25,7 +24,5 @@ while True:
             pygame.quit()
             sys.exit()
 
-    draw_screen(DISPLAYSURF, game)
-
-    pygame.display.update()
+    renderer.draw()
     FramePerSec.tick(FPS)

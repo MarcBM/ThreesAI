@@ -1,49 +1,10 @@
 import random
 
-BOARD_SIZE = 4
-
-# Explanation of Tiles and Ordinal Values:
-# Tile ordinals:
-# -2 : Tile with value 2
-# -1 : Tile with value 1
-#  0 : Tile with value 3
-#  1 : Tile with value 6
-# Generally, for ord >= 0, tile value = 3 * (2 ** ord)
-# This is useful because it allows us to easily handle game logic and scoring. Since the ordinal number is used for
-# these calculations, using the ordinal value as the primary representation of tiles simplifies the implementation.
-# The visual representation (the actual number on the tile) is purely for display purposes, and can be derived from the
-# ordinal value as needed.
-# As a general rule, tiles with the same ordinal value can be merged together. Tiles with ordinals -1 and -2 can only
-# be merged with each other.
-# The ordinal value of the tile is specifically useful for generating the random high-value tile when refilling the
-# tile bag.
-# Scoring:
-# Tiles with ordinals -1 and -2 do not contribute to the score.
-# For tiles with ord >= 0, score = 3 ** (ord + 1)
-
-class Tile:
-    def __init__(self, ord):
-        self.ord = ord # Tile's ordinal value
-        self.value = self.compute_value()
-        self.moving = False
-        self.offset = (0, 0)
-    
-    def compute_value(self):
-        if self.ord == -2:
-            return 2
-        elif self.ord == -1:
-            return 1
-        else:
-            return 3 * (2 ** self.ord)
-        
-    def get_score(self):
-        if self.ord < 0:
-            return 0
-        else:
-            return 3 ** (self.ord + 1)
+from tile import Tile
 
 class TileBag:
-    def __init__(self):
+    def __init__(self, board_size):
+        self.board_size = board_size
         self.tiles = []
         self.highest_possible_ord = 0
         self.refill()
@@ -51,7 +12,7 @@ class TileBag:
     def refill(self, max_ord = 0):
         # Fill the bag with 12 tiles, 4 of each type (1s, 2s, and 3s)
         self.tiles = []
-        for _ in range(BOARD_SIZE):
+        for _ in range(self.board_size):
             self.tiles.append(Tile(-1))  # Tile with ord -1 (value 1)
             self.tiles.append(Tile(-2))  # Tile with ord -2 (value 2)
             self.tiles.append(Tile(0))    # Tile with ord 0 (value 3)
@@ -87,20 +48,28 @@ class TileBag:
 
 
 class Threes:
-    def __init__ (self):
+    def __init__ (self, board_size=4):
         # Initialize a 4x4 board with zeros
-        self.board = [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+        self.board_size = board_size
+        self.board = [[0 for _ in range(self.board_size)] for _ in range(self.board_size)]
         self.highest_ord = 0
         # Initialize a bag of tiles
-        self.tile_bag = TileBag()
+        self.tile_bag = TileBag(self.board_size)
+        self.renderer = None
+    
+    def assign_renderer(self, renderer):
+        self.renderer = renderer
 
     def start_game(self):
         # Choose 9 random positions on the board to place starting tiles
         should_place = [True] * 9 + [False] * 7
         random.shuffle(should_place)
         index = 0
-        for i in range(BOARD_SIZE):
-            for j in range(BOARD_SIZE):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
                 if should_place[index]:
-                    self.board[i][j] = self.tile_bag.draw_tile(self.highest_ord)
+                    new_tile = self.tile_bag.draw_tile(self.highest_ord)
+                    self.board[i][j] = new_tile
+                    if self.renderer:
+                        self.renderer.newTile(new_tile)
                 index += 1
