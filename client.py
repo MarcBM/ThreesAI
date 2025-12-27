@@ -1,8 +1,10 @@
 import pygame
 import sys
 from pygame.locals import *
+
 from gameState import Threes
 from renderer import RendererManager
+from playerController import PlayerController
 
 pygame.init()
 
@@ -12,7 +14,9 @@ FPS = 60
 game = Threes()
 
 renderer = RendererManager(game)
+controller = PlayerController(game)
 game.assign_renderer(renderer)
+game.assign_controller(controller)
 
 game.start_game()
 
@@ -23,6 +27,9 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == KEYDOWN:
+            controller.handle_key_press(event)
 
-    renderer.draw()
+    if renderer.updating:
+        renderer.draw()
     FramePerSec.tick(FPS)

@@ -21,6 +21,7 @@ class Tile:
     def __init__(self, ord):
         self.ord = ord # Tile's ordinal value
         self.value = self.compute_value()
+        self.position = (-1,-1)
     
     def compute_value(self):
         if self.ord == -2:
@@ -35,3 +36,6 @@ class Tile:
             return 0
         else:
             return 3 ** (self.ord + 1)
+        
+    def set_position(self, row, col):
+        self.position = (row, col)
