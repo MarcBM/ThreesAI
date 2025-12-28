@@ -155,11 +155,16 @@ class RendererManager:
     self.surface = start_renderer(game.board_size)
     self.updating = False
     self.animation_time = ANIMATION_FRAMES # frames per animation
-    self.current_frame = 0
+    self.remaining_frames = 0
+    self.moving_tiles = []
+    self.movement_direction = (0, 0)
+    self.newlySpawnedTile = None
     self.render_queue = []
     
   def draw(self):
     draw_screen(self.surface, self.game)
+    if self.updating:
+      self.handle_animation()
     for tile in self.render_queue:
        row, col = tile.position
        draw_tile(self.surface, row, col, tile, self.game.highest_ord)
@@ -168,6 +173,19 @@ class RendererManager:
     else:
         draw_preview_tiles(self.surface, self.game.previewTiles)
     pygame.display.update()
+
+  def handle_animation(self):
+    if self.remaining_frames <= 0:
+        self.updating = False
+        self.moving_tiles = []
+        self.movement_direction = (0, 0)
+        self.newlySpawnedTile = None
+        self.game.finish_move()
+    else:
+        self.update_moving_tiles()
+        if self.remaining_frames == self.animation_time // 2:
+            pass # Placeholder for new tile anination trigger
+        self.remaining_frames -= 1
     
   def newTile(self, tile):
     label = str(tile.value)
@@ -185,6 +203,22 @@ class RendererManager:
       numDigits = len(label)
       font = PREVIEW_FONTS[numDigits]
       tile.text = font.render(label, True, DARK_TEXT_COLOR)
+
+  def start_tile_movement(self, moving_tiles, movement_direction, newlySpawnedTile=None):
+    self.moving_tiles = moving_tiles
+    self.movement_direction = movement_direction
+    self.newlySpawnedTile = newlySpawnedTile
+    self.updating = True
+    self.remaining_frames = self.animation_time
+
+  def update_moving_tiles(self):
+    if not self.moving_tiles or self.movement_direction == (0, 0):
+        return
+    dx, dy = self.movement_direction
+    stepX = dx / self.animation_time
+    stepY = dy / self.animation_time
+    for tile in self.moving_tiles:
+      tile.offset = (tile.offset[0] + stepX, tile.offset[1] + stepY)
 
   def add_to_render_queue(self, tile):
      self.render_queue.append(tile)
